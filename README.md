@@ -1,5 +1,5 @@
 # PP
-#To install pyenv:
+#№To install pyenv:
 Powershell or Git Bash: git clone https://github.com/pyenv-win/pyenv-win.git "$HOME/.pyenv"
 Or cmd.exe: git clone https://github.com/pyenv-win/pyenv-win.git "%USERPROFILE%\.pyenv"
 ##Finish the installation:
@@ -15,20 +15,17 @@ Using either PowerShell or Windows 8/above Terminal run:
 
 ##Create and activate virtual enviroment
  1.python -m venv ./env
- 2.source ./env/bin/activate
+ 2.source ./env/Scripts/activate
  To add 'Flask' in dependencies of project:
  1.To install and upgrade pip(from home directory):
-  python -m pip install --upgrade pip
+   python -m pip install --upgrade pip
  2.To install flask(from home directory):
   pip install flask
  
-C:\Users\iryna\OneDrive\PROJECTS\PP>pyenv global 3.7.9
-  (from project file)python -m venv ./env
-C:\Users\iryna\OneDrive\PROJECTS\PP\env\Scripts>activate
-(env) C:\Users\iryna\OneDrive\PROJECTS\PP\env\Scripts>
+
 
 https://stackoverflow.com/questions/54200746/cant-install-uwsgi-on-cygwin
-To  use a production WSGI server (use Waitress):
+##To  use a production WSGI server (use Waitress):
   1.https://stackoverflow.com/questions/54200746/cant-install-uwsgi-on-cygwin
   2.pip install waitress
   3.waitress-serve --call 'app:create_app'
