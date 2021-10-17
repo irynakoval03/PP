@@ -1,0 +1,427 @@
+openapi: 3.0.1
+info:
+  title: Резервування аудиторій
+  description: На цьому сайті ви зможете резервувати аудиторії. Резервувати аудиторію
+    можна на проміжок часу від 1 години до 5 днів. Також ви можете редагувати, скасовувати
+    та видаляти їх. Через накладки не завжди аудиторії будуть доступними, тому намагайтеся
+    резервувати потрібні Вам аудиторії завчасно.
+  contact:
+    email: bohdana.honserovska.knm.2020@lpnu.ua
+  version: 1.0.0
+servers:
+- url: https://audiencereservation.swagger.io/v2
+- url: http://audiencereservation.swagger.io/v2
+tags:
+- name: audience
+  description: Everything about audiences
+- name: user
+  description: Operations about user
+paths:
+  /audience:
+    put:
+      tags:
+      - audience
+      summary: Update an existing audience
+      operationId: updateAudience
+      requestBody:
+        description: Audience object that needs to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Audience'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Audience'
+        required: true
+      responses:
+        400:
+          description: Invalid ID supplied
+          content: {}
+        404:
+          description: Audience not found
+          content: {}
+        405:
+          description: Validation exception
+          content: {}
+      security:
+      - audience_auth:
+        - write:audiences
+        - read:audiences
+      x-codegen-request-body-name: body
+    post:
+      tags:
+      - audience
+      summary: Add an audience
+      operationId: addReserve
+      requestBody:
+        description: Audience which will be added
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Audience'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Audience'
+        required: true
+      responses:
+        200:
+          description: An audience added
+          content: {}
+        405:
+          description: Incorrect value
+          content: {}
+      security:
+      - audience_auth:
+        - write:audiences
+        - read:audiences
+      x-codegen-request-body-name: body
+  /audience/findByStatus:
+    get:
+      tags:
+      - audience
+      summary: Find an audience
+      description: Multiple status values can be provided with comma separated strings
+      operationId: findAudienceByStatus
+      parameters:
+      - name: status
+        in: query
+        description: Status values that need to be considered for filter
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            default: available
+            enum:
+            - available
+            - taken
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Audience'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Audience'
+        400:
+          description: Invalid status value
+          content: {}
+      security:
+      - audience_auth:
+        - write:audiences
+        - read:audiences
+  /audience/reserve:
+    post:
+      tags:
+      - audience
+      summary: Reserve an audience
+      operationId: ReserveAudience
+      requestBody:
+        description: Reserved audience
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/Reserve'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Reserve'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserve'
+        400:
+          description: Invalid audience
+          content: {}
+      x-codegen-request-body-name: body
+  /audience/reserve/{reservationId}:
+    put:
+      tags:
+      - audience
+      summary: Update reservation by ID
+      description: For valid response try integer IDs with positive integer value.         Negative
+        or non-integer values will generate API errors
+      operationId: updateReservation
+      parameters:
+      - name: reservationId
+        in: path
+        description: ID of the reservation that needs to be updated
+        required: true
+        schema:
+          minimum: 1.0
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Successfully updated
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Reserve'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserve'
+        400:
+          description: Invalid ID supplied
+          content: {}
+        404:
+          description: Reservation not found
+          content: {}
+    delete:
+      tags:
+      - audience
+      summary: Delete reservation by ID
+      description: For valid response try integer IDs with positive integer value.         Negative
+        or non-integer values will generate API errors
+      operationId: deleteReservation
+      parameters:
+      - name: reservationId
+        in: path
+        description: ID of the reservation that needs to be deleted
+        required: true
+        schema:
+          minimum: 1.0
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Successfully deleted
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Reserve'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserve'
+        400:
+          description: Invalid ID supplied
+          content: {}
+        404:
+          description: Reservation not found
+          content: {}
+  /user:
+    post:
+      tags:
+      - user
+      summary: Create user
+      description: This can only be done by the logged in user.
+      operationId: createUser
+      requestBody:
+        description: Created user object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        default:
+          description: successful operation
+          content: {}
+      x-codegen-request-body-name: body
+  /user/login:
+    get:
+      tags:
+      - user
+      summary: Logs user into the system
+      operationId: loginUser
+      parameters:
+      - name: username
+        in: query
+        description: The user name for login
+        required: true
+        schema:
+          type: string
+      - name: password
+        in: query
+        description: The password for login in clear text
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          headers:
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/xml:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+        400:
+          description: Invalid username/password supplied
+          content: {}
+  /user/logout:
+    get:
+      tags:
+      - user
+      summary: Logs out current logged in user session
+      operationId: logoutUser
+      responses:
+        default:
+          description: successful operation
+          content: {}
+  /user/{username}:
+    get:
+      tags:
+      - user
+      summary: Get user by user name
+      operationId: getUserByName
+      parameters:
+      - name: username
+        in: path
+        description: 'The name that needs to be fetched. Use user1 for testing. '
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Invalid username supplied
+          content: {}
+        404:
+          description: User not found
+          content: {}
+    put:
+      tags:
+      - user
+      summary: Updated user
+      description: This can only be done by the logged in user.
+      operationId: updateUser
+      parameters:
+      - name: username
+        in: path
+        description: name that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated user object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        400:
+          description: Invalid user supplied
+          content: {}
+        404:
+          description: User not found
+          content: {}
+      x-codegen-request-body-name: body
+    delete:
+      tags:
+      - user
+      summary: Delete user
+      description: This can only be done by the logged in user.
+      operationId: deleteUser
+      parameters:
+      - name: username
+        in: path
+        description: The name that needs to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        400:
+          description: Invalid username supplied
+          content: {}
+        404:
+          description: User not found
+          content: {}
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        phone:
+          type: string
+        userStatus:
+          type: integer
+          description: User Status
+          format: int32
+      xml:
+        name: User
+    Reserve:
+      required:
+      - begin
+      - end
+      type: object
+      properties:
+        begin:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+      xml:
+        name: Reserve
+    Audience:
+      required:
+      - id
+      - name
+      - status
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int24
+        name:
+          type: string
+          example: "101"
+        status:
+          $ref: '#/components/schemas/Reserve'
+      xml:
+        name: Audience
+  securitySchemes:
+    audience_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: http://audiencereservation.swagger.io/oauth/dialog
+          scopes:
+            write:audiences: modify reservation in your account
+            read:audiences: read your reservations
