@@ -14,40 +14,12 @@ servers:
 tags:
 - name: audience
   description: Everything about audiences
+- name: reserve
+  description: Reserve an audience
 - name: user
   description: Operations about user
 paths:
   /audience:
-    put:
-      tags:
-      - audience
-      summary: Update an existing audience
-      operationId: updateAudience
-      requestBody:
-        description: Audience object that needs to be updated
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Audience'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Audience'
-        required: true
-      responses:
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Audience not found
-          content: {}
-        405:
-          description: Validation exception
-          content: {}
-      security:
-      - audience_auth:
-        - write:audiences
-        - read:audiences
-      x-codegen-request-body-name: body
     post:
       tags:
       - audience
@@ -114,14 +86,111 @@ paths:
         400:
           description: Invalid status value
           content: {}
+  /audience/{audienceId}:
+    get:
+      tags:
+      - audience
+      summary: Find audience by ID
+      description: Returns a single audience
+      operationId: getAudienceById
+      parameters:
+      - name: audienceId
+        in: path
+        description: ID of audience returned
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Audience'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Audience'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Audience not found
+    put:
+      tags:
+      - audience
+      summary: Update an existing audience
+      operationId: updateAudience
+      parameters:
+      - name: audienceId
+        in: path
+        description: ID of audience returned
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: Audience object that needs to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Audience'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Audience'
+        required: true
+      responses:
+        200:
+          description: Successfully updated
+          content: {}
+        400:
+          description: Invalid ID supplied
+          content: {}
+        404:
+          description: Audience not found
+          content: {}
+        405:
+          description: Validation exception
+          content: {}
       security:
       - audience_auth:
         - write:audiences
         - read:audiences
-  /audience/reserve:
-    post:
+      x-codegen-request-body-name: body
+    delete:
       tags:
       - audience
+      summary: Deletes an audience
+      operationId: deleteAudience
+      parameters:
+      - name: audienceId
+        in: path
+        description: Audience id to delete
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Successfully deleted
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Audience'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Audience'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Audience not found
+      security:
+      - audience_auth:
+        - write:audiences
+        - read:audiences
+  /reserve:
+    post:
+      tags:
+      - reserve
       summary: Reserve an audience
       operationId: ReserveAudience
       requestBody:
@@ -144,11 +213,48 @@ paths:
         400:
           description: Invalid audience
           content: {}
+      security:
+      - reserve_auth:
+        - write:reserve
+        - read:reserve
       x-codegen-request-body-name: body
-  /audience/reserve/{reservationId}:
+  /reserve/{reservationId}:
+    get:
+      tags:
+      - reserve
+      summary: Find audience reservation by ID
+      description: For valid response try integer IDs with positive integer value.         Negative
+        or non-integer values will generate API errors
+      operationId: getOrderById
+      parameters:
+      - name: reservationId
+        in: path
+        required: true
+        schema:
+          minimum: 1.0
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Reserve'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserve'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Reservation not found
+      security:
+      - reserve_auth:
+        - write:reserve
+        - read:reserve
     put:
       tags:
-      - audience
+      - reserve
       summary: Update reservation by ID
       description: For valid response try integer IDs with positive integer value.         Negative
         or non-integer values will generate API errors
@@ -162,6 +268,16 @@ paths:
           minimum: 1.0
           type: integer
           format: int64
+      requestBody:
+        description: Reservation that needs to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reserve'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Reserve'
+        required: true
       responses:
         200:
           description: Successfully updated
@@ -178,9 +294,13 @@ paths:
         404:
           description: Reservation not found
           content: {}
+      security:
+      - reserve_auth:
+        - write:reserve
+        - read:reserve
     delete:
       tags:
-      - audience
+      - reserve
       summary: Delete reservation by ID
       description: For valid response try integer IDs with positive integer value.         Negative
         or non-integer values will generate API errors
@@ -210,6 +330,10 @@ paths:
         404:
           description: Reservation not found
           content: {}
+      security:
+      - reserve_auth:
+        - write:reserve
+        - read:reserve
   /user:
     post:
       tags:
@@ -282,6 +406,10 @@ paths:
         default:
           description: successful operation
           content: {}
+      security:
+      - audience_auth:
+        - write:audiences
+        - read:audiences
   /user/{username}:
     get:
       tags:
@@ -332,12 +460,18 @@ paths:
               $ref: '#/components/schemas/User'
         required: true
       responses:
+        200:
+          description: User successfully updated
         400:
           description: Invalid user supplied
           content: {}
         404:
           description: User not found
           content: {}
+      security:
+      - audience_auth:
+        - write:audiences
+        - read:audiences
       x-codegen-request-body-name: body
     delete:
       tags:
@@ -353,12 +487,19 @@ paths:
         schema:
           type: string
       responses:
+        200:
+          description: User successfully deleted
+          content: {}
         400:
           description: Invalid username supplied
           content: {}
         404:
           description: User not found
           content: {}
+      security:
+      - audience_auth:
+        - write:audiences
+        - read:audiences
 components:
   schemas:
     User:
@@ -389,6 +530,9 @@ components:
       required:
       - begin
       - end
+      - id
+      - audienceId
+      - userId
       type: object
       properties:
         begin:
@@ -397,6 +541,15 @@ components:
         end:
           type: string
           format: date-time
+        id:
+          type: integer
+          format: int64
+        audienceId:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
       xml:
         name: Reserve
     Audience:
@@ -423,5 +576,13 @@ components:
         implicit:
           authorizationUrl: http://audiencereservation.swagger.io/oauth/dialog
           scopes:
-            write:audiences: modify reservation in your account
-            read:audiences: read your reservations
+            write:audiences: modify audiences in your account
+            read:audiences: read your audiences
+    reserve_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: http://audiencereservation.swagger.io/oauth/dialog
+          scopes:
+            write:reserve: modify reservations in your account
+            read:reserve: read your reservations
