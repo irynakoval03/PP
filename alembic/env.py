@@ -4,15 +4,14 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-import os
-import sys
-sys.path.append(r"C:\Users\Annyt\Documents\lab6")
-from models import BaseModel
+#import os
+#import sys
+#sys.path.append(r"C:\Users\Annyt\Documents\lab6")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", "mysql+pymysql://root:12272027@127.0.0.1:3306/mydb")
+# config.set_main_option("sqlalchemy.url", "mysql+pymysql://root:Ira.ko03@127.0.0.1:3306/auditorium_reservation")
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
@@ -21,6 +20,7 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
+from models import BaseModel
 target_metadata = BaseModel.metadata
 
 # other values from the config, defined by the needs of env.py,

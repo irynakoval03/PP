@@ -9,331 +9,157 @@ info:
     email: bohdana.honserovska.knm.2020@lpnu.ua
   version: 1.0.0
 servers:
-- url: https://audiencereservation.swagger.io/v2
-- url: http://audiencereservation.swagger.io/v2
+- url: https://auditoriumreservation.swagger.io/v2
+- url: http://auditoriumreservation.swagger.io/v2
 tags:
-- name: audience
-  description: Everything about audiences
+- name: auditorium
+  description: Everything about auditorium
 - name: reserve
-  description: Reserve an audience
+  description: Reserve an auditorium
 - name: user
   description: Operations about user
 paths:
-  /audience:
+  /auditorium:
     post:
       tags:
-      - audience
-      summary: Add an audience
-      operationId: addReserve
+      - auditorium
+      summary: Add an auditorium
+      operationId: addAuditorium
       requestBody:
-        description: Audience which will be added
+        description: Auditorium which will be added
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Audience'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Audience'
+              $ref: '#/components/schemas/AuditoriumInput'
         required: true
       responses:
         200:
-          description: An audience added
-          content: {}
-        405:
-          description: Incorrect value
-          content: {}
+          description: An auditorium added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditoriumOutput'
+        409:
+          description: Auditorium already exists with such name.
       security:
-      - audience_auth:
-        - write:audiences
-        - read:audiences
+      - auditorium_auth:
+        - write:auditoriums
+        - read:auditoriums
       x-codegen-request-body-name: body
-  /audience/findByStatus:
+  /auditorium/{auditoriumId}:
     get:
       tags:
-      - audience
-      summary: Find an audience
+      - auditorium
+      summary: Find auditorium by ID
+      description: Returns a single auditorium
+      operationId: getAuditoriumById
+      parameters:
+      - name: auditoriumId
+        in: path
+        description: ID of auditorium to be returned
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditoriumOutput'
+        404:
+          description: Auditorium does not exist with such id.
+    put:
+      tags:
+      - auditorium
+      summary: Update an existing auditorium
+      operationId: updateAuditorium
+      parameters:
+      - name: auditoriumId
+        in: path
+        description: ID of auditorium returned
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        description: Auditorium object that needs to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuditoriumInput'
+        required: true
+      responses:
+        200:
+          description: Successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditoriumOutput'
+        404:
+          description: Auditorium does not exist with such id.
+        409:
+          description: Auditorium already exists with such name.
+      security:
+      - auditorium_auth:
+        - write:auditoriums
+        - read:auditoriums
+      x-codegen-request-body-name: body
+    delete:
+      tags:
+      - auditorium
+      summary: Delete an auditorium
+      operationId: deleteAuditorium
+      parameters:
+      - name: auditoriumId
+        in: path
+        description: Auditorium id to delete
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditoriumOutput'
+        404:
+          description: Auditorium does not exist with such id.
+      security:
+      - auditorium_auth:
+        - write:auditoriums
+        - read:auditoriums
+  /auditorium/findByStatus/{status}:
+    get:
+      tags:
+      - auditorium
+      summary: Find an auditorium
       description: Multiple status values can be provided with comma separated strings
-      operationId: findAudienceByStatus
+      operationId: findAuditoriumByStatus
       parameters:
       - name: status
-        in: query
+        in: path
         description: Status values that need to be considered for filter
         required: true
-        style: form
-        explode: true
         schema:
-          type: array
-          items:
-            type: string
-            default: available
-            enum:
-            - available
-            - taken
+          type: string
+          enum:
+          - available
+          - taken
       responses:
         200:
           description: successful operation
           content:
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Audience'
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Audience'
+                  $ref: '#/components/schemas/AuditoriumOutput'
         400:
-          description: Invalid status value
-          content: {}
-  /audience/{audienceId}:
-    get:
-      tags:
-      - audience
-      summary: Find audience by ID
-      description: Returns a single audience
-      operationId: getAudienceById
-      parameters:
-      - name: audienceId
-        in: path
-        description: ID  audience returned
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Audience'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Audience'
-        400:
-          description: Invalid ID supplied
-        404:
-          description: Audience not found
-    put:
-      tags:
-      - audience
-      summary: Update an existing audience
-      operationId: updateAudience
-      parameters:
-      - name: audienceId
-        in: path
-        description: ID of audience returned
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        description: Audience object that needs to be updated
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Audience'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Audience'
-        required: true
-      responses:
-        200:
-          description: Successfully updated
-          content: {}
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Audience not found
-          content: {}
-        405:
-          description: Validation exception
-          content: {}
-      security:
-      - audience_auth:
-        - write:audiences
-        - read:audiences
-      x-codegen-request-body-name: body
-    delete:
-      tags:
-      - audience
-      summary: Deletes an audience
-      operationId: deleteAudience
-      parameters:
-      - name: audienceId
-        in: path
-        description: Audience id to delete
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        200:
-          description: Successfully deleted
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Audience'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Audience'
-        400:
-          description: Invalid ID supplied
-        404:
-          description: Audience not found
-      security:
-      - audience_auth:
-        - write:audiences
-        - read:audiences
-  /reserve:
-    post:
-      tags:
-      - reserve
-      summary: Reserve an audience
-      operationId: ReserveAudience
-      requestBody:
-        description: Reserved audience
-        content:
-          '*/*':
-            schema:
-              $ref: '#/components/schemas/Reserve'
-        required: true
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Reserve'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Reserve'
-        400:
-          description: Invalid audience
-          content: {}
-      security:
-      - reserve_auth:
-        - write:reserve
-        - read:reserve
-      x-codegen-request-body-name: body
-  /reserve/{reservationId}:
-    get:
-      tags:
-      - reserve
-      summary: Find audience reservation by ID
-      description: For valid response try integer IDs with positive integer value.         Negative
-        or non-integer values will generate API errors
-      operationId: getOrderById
-      parameters:
-      - name: reservationId
-        in: path
-        required: true
-        schema:
-          minimum: 1.0
-          type: integer
-          format: int64
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Reserve'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Reserve'
-        400:
-          description: Invalid ID supplied
-        404:
-          description: Reservation not found
-      security:
-      - reserve_auth:
-        - write:reserve
-        - read:reserve
-    put:
-      tags:
-      - reserve
-      summary: Update reservation by ID
-      description: For valid response try integer IDs with positive integer value.         Negative
-        or non-integer values will generate API errors
-      operationId: updateReservation
-      parameters:
-      - name: reservationId
-        in: path
-        description: ID of the reservation that needs to be updated
-        required: true
-        schema:
-          minimum: 1.0
-          type: integer
-          format: int64
-      requestBody:
-        description: Reservation that needs to be updated
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Reserve'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Reserve'
-        required: true
-      responses:
-        200:
-          description: Successfully updated
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Reserve'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Reserve'
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Reservation not found
-          content: {}
-      security:
-      - reserve_auth:
-        - write:reserve
-        - read:reserve
-    delete:
-      tags:
-      - reserve
-      summary: Delete reservation by ID
-      description: For valid response try integer IDs with positive integer value.         Negative
-        or non-integer values will generate API errors
-      operationId: deleteReservation
-      parameters:
-      - name: reservationId
-        in: path
-        description: ID of the reservation that needs to be deleted
-        required: true
-        schema:
-          minimum: 1.0
-          type: integer
-          format: int64
-      responses:
-        200:
-          description: Successfully deleted
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Reserve'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Reserve'
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Reservation not found
-          content: {}
-      security:
-      - reserve_auth:
-        - write:reserve
-        - read:reserve
+          description: Auditorium status is not valid
   /user:
     post:
       tags:
@@ -346,12 +172,18 @@ paths:
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/UserInput'
         required: true
       responses:
-        default:
-          description: successful operation
-          content: {}
+        200:
+          description: An user added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOutput'
+        409:
+          description:
+                User already exists with such username.
       x-codegen-request-body-name: body
   /user/login:
     get:
@@ -407,9 +239,9 @@ paths:
           description: successful operation
           content: {}
       security:
-      - audience_auth:
-        - write:audiences
-        - read:audiences
+      - auditorium_auth:
+        - write:auditoriums
+        - read:auditoriums
   /user/{username}:
     get:
       tags:
@@ -427,18 +259,11 @@ paths:
         200:
           description: successful operation
           content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        400:
-          description: Invalid username supplied
-          content: {}
+                $ref: '#/components/schemas/UserOutput'
         404:
-          description: User not found
-          content: {}
+          description: User does not exist with such username.
     put:
       tags:
       - user
@@ -453,25 +278,27 @@ paths:
         schema:
           type: string
       requestBody:
-        description: Updated user object
+        description: Update user object
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/UserInput'
         required: true
       responses:
         200:
           description: User successfully updated
-        400:
-          description: Invalid user supplied
-          content: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOutput'
+        409:
+          description: User already exists with such username.
         404:
-          description: User not found
-          content: {}
+          description: User does not exist with such username.
       security:
-      - audience_auth:
-        - write:audiences
-        - read:audiences
+      - auditorium_auth:
+        - write:auditoriums
+        - read:auditoriums
       x-codegen-request-body-name: body
     delete:
       tags:
@@ -489,20 +316,160 @@ paths:
       responses:
         200:
           description: User successfully deleted
-          content: {}
-        400:
-          description: Invalid username supplied
-          content: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserOutput'
         404:
-          description: User not found
+          description: Reservation does not exist with such id.
+      security:
+      - auditorium_auth:
+        - write:auditoriums
+        - read:auditoriums
+  /reserve:
+    post:
+      tags:
+      - reserve
+      summary: Reserve an auditorium
+      operationId: ReserveAuditorium
+      requestBody:
+        description: Reserved auditorium
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/ReserveInput'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReserveOutput'
+        404:
+          description: User does not exist with such username.
+        409:
+          description: Auditorium is not available at that time.
+      security:
+      - reserve_auth:
+        - write:reserve
+        - read:reserve
+      x-codegen-request-body-name: body
+  /reserve/{reservationId}:
+    get:
+      tags:
+      - reserve
+      summary: Find auditorium reservation by ID
+      description: For valid response try integer IDs with positive integer value.         Negative
+        or non-integer values will generate API errors
+      operationId: getOrderById
+      parameters:
+      - name: reservationId
+        in: path
+        required: true
+        schema:
+          minimum: 1.0
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReserveOutput'
+        404:
+          description: Reservation does not exist with such id.
+      security:
+      - reserve_auth:
+        - write:reserve
+        - read:reserve
+    put:
+      tags:
+      - reserve
+      summary: Update reservation by ID
+      description: For valid response try integer IDs with positive integer value.         Negative
+        or non-integer values will generate API errors
+      operationId: updateReservation
+      parameters:
+      - name: reservationId
+        in: path
+        description: ID of the reservation that needs to be updated
+        required: true
+        schema:
+          minimum: 1.0
+          type: integer
+          format: int64
+      requestBody:
+        description: Reservation that needs to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReserveInput'
+        required: true
+      responses:
+        200:
+          description: Successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReserveOutput'
+        404:
+          description: User does not exist with such username.
+        409:
+          description: Auditorium is not available at that time.
+      security:
+      - reserve_auth:
+        - write:reserve
+        - read:reserve
+    delete:
+      tags:
+      - reserve
+      summary: Delete reservation by ID
+      description: For valid response try integer IDs with positive integer value.         Negative
+        or non-integer values will generate API errors
+      operationId: deleteReservation
+      parameters:
+      - name: reservationId
+        in: path
+        description: ID of the reservation that needs to be deleted
+        required: true
+        schema:
+          minimum: 1.0
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReserveOutput'
+        404:
+          description: Reservation does not exist with such id.
           content: {}
       security:
-      - audience_auth:
-        - write:audiences
-        - read:audiences
+      - reserve_auth:
+        - write:reserve
+        - read:reserve
 components:
   schemas:
-    User:
+    UserInput:
+      type: object
+      properties:
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        phone:
+          type: string
+    UserOutput:
       type: object
       properties:
         id:
@@ -520,18 +487,32 @@ components:
           type: string
         phone:
           type: string
-        userStatus:
+    ReserveInput:
+      required:
+      - begin
+      - end
+      - auditoriumId
+      - userId
+      type: object
+      properties:
+        begin:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        auditoriumId:
           type: integer
-          description: User Status
-          format: int32
-      xml:
-        name: User
-    Reserve:
+          format: int64
+        userId:
+          type: integer
+          format: int64
+    ReserveOutput:
       required:
       - begin
       - end
       - id
-      - audienceId
+      - auditoriumId
       - userId
       type: object
       properties:
@@ -544,45 +525,43 @@ components:
         id:
           type: integer
           format: int64
-        audienceId:
+        auditoriumId:
           type: integer
           format: int64
         userId:
           type: integer
           format: int64
-      xml:
-        name: Reserve
-    Audience:
+    AuditoriumInput:
       required:
-      - id
       - name
-      - status
       type: object
       properties:
-        id:
+        name:
+          type: string
+          example: "101"
+    AuditoriumOutput:
+      type: object
+      properties:
+        audienceId:
           type: integer
           format: int24
         name:
           type: string
           example: "101"
-        status:
-          $ref: '#/components/schemas/Reserve'
-      xml:
-        name: Audience
   securitySchemes:
-    audience_auth:
+    auditorium_auth:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: http://audiencereservation.swagger.io/oauth/dialog
+          authorizationUrl: http://auditoriumreservation.swagger.io/oauth/dialog
           scopes:
-            write:audiences: modify audiences in your account
-            read:audiences: read your audiences
+            write:auditoriums: modify auditoriums in your account
+            read:auditoriums: read your auditoriums
     reserve_auth:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: http://audiencereservation.swagger.io/oauth/dialog
+          authorizationUrl: http://auditoriumreservation.swagger.io/oauth/dialog
           scopes:
             write:reserve: modify reservations in your account
             read:reserve: read your reservations

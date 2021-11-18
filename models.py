@@ -15,21 +15,24 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.orm import relationship
 import sys
 
-engine = create_engine("mysql+pymysql://root:12272027@127.0.0.1:3306/mydb")
-SessionFactory = sessionmaker(bind=engine)
-Session = scoped_session(SessionFactory)
+#engine = create_engine("mysql+pymysql://root:Ira.ko03@127.0.0.1:3306/auditorium_reservation", encoding="utf-8", echo=True, future=True)
+#SessionFactory = sessionmaker(bind=engine)
+#Session = scoped_session(SessionFactory)
+
 BaseModel = declarative_base()
+
 
 class User(BaseModel):
     __tablename__ = "user"
     userId = Column(Integer, primary_key=True)
-    username = Column(String(45))
-    firstName = Column(String(45))
-    lastName = Column(String(45))
-    email = Column(String(45))
-    password = Column(String(45))
-    phone = Column(Integer)
+    username = Column(String(45),nullable=False, unique=True)
+    firstName = Column(String(45),nullable=False)
+    lastName = Column(String(45),nullable=False)
+    email = Column(String(45),nullable=False)
+    password = Column(String(60),nullable=False)
+    phone = Column(String(20),nullable=True)
     reservation = relationship('Reserve')
+
     def __str__(self):
         return f"User ID        :{self.userId}\n"\
                f"Username       :{self.username}\n" \
@@ -39,17 +42,15 @@ class User(BaseModel):
                f"Password       :{self.password}\n" \
                f"Phone          :{self.phone}\n"
 
-
 class Audience(BaseModel):
     __tablename__ = "audience"
     audienceId = Column(Integer, primary_key=True)
     name = Column(String(45))
-    audience = relationship('Reserve', uselist = False)
+    audience = relationship('Reserve', uselist = True)
 
     def __str__(self):
         return f"Audience ID        :{self.audienceId}\n"\
                f"Audience           :{self.name}\n"
-
 
 class Reserve(BaseModel):
     __tablename__ = "reserve"
@@ -66,3 +67,7 @@ class Reserve(BaseModel):
                f"End                 :{self.end}\n" \
                f"User ID             :{self.userId}\n" \
                f"Audience ID         :{self.audienceId}\n"
+
+
+    #if __name__ == "__main__":
+    #    BaseModel.metadata.create_all(engine)

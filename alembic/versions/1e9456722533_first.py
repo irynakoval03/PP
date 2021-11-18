@@ -30,7 +30,7 @@ def upgrade():
     sa.Column('lastName', sa.String(length=45), nullable=True),
     sa.Column('email', sa.String(length=45), nullable=True),
     sa.Column('password', sa.String(length=45), nullable=True),
-    sa.Column('phone', sa.Integer(), nullable=True),
+    sa.Column('phone', sa.String(length=20), nullable=False),
     sa.PrimaryKeyConstraint('userId')
     )
     op.create_table('reserve',
