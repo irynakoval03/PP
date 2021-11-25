@@ -20,7 +20,7 @@ ma = Marshmallow(app)
 
 class RestApi(Resource):
     def __init__(self):
-        mysql_engine = create_engine("mysql+pymysql://root:Ira.ko03@127.0.0.1:3306/auditorium_reservation", encoding="utf-8",
+        mysql_engine = create_engine("mysql+pymysql://root:1234432aat@localhost/auditorium_reservation", encoding="utf-8",
                                      echo=True, future=True)
         Session = sessionmaker(bind=mysql_engine)
         self.session = Session()
