@@ -20,7 +20,7 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 app.config.from_pyfile('settings.cfg')
 db = SQLAlchemy(app)
-api = Api(app)
+#api = Api(app)
 ma = Marshmallow(app)
 
 
